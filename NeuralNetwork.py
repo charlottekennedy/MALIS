@@ -227,3 +227,50 @@ class MLP(Layer): # Multi Layer Perceptron
         self.losses=loss
         self.accuracies=accuracy
             
+            
+    def training_random(self,x,y,learning_rate,num_epochs,verbose=False, print_every_k=1) :
+        '''
+        Training your network
+        
+        INPUTS:
+        - x : numpy array of size NxD, D number of features of your input
+        - y : numpy array of size NxC, C number of classes, with correct values of target
+        - learning_rate : a numpy scalar containing your learning rate
+        - num_epochs : a numpy scalar representing the number of epochs with which train your networks
+        - verbose : a boolean False by default, if True print the training loss and training accuracy values
+                    if False only store them
+        - print_every_k : a numpy scalar equal 1 by default, if verbose is True print the result every print_every_k epochs
+
+        OUTPUTS: /
+        '''
+        accuracy=[]
+        loss=[]
+
+        # iterate for num_epochs number of epochs
+        for epoch in range(num_epochs) :
+            
+            # shuffle your training set
+            shuffle=np.random.permutation(range(x.shape[0]))
+            x_shuffled=x[shuffle,:]
+            y_shuffled=y[shuffle,:]
+            
+            # sample by sample forward and backward through the network using stochastic gradient descent (SGD)
+            for sample in range(x.shape[0]) :
+                y_hat=self.forward(x_shuffled[sample,:])
+                self.backpropagation(x_shuffled[sample,:].reshape(1,x.shape[1]),y_shuffled[sample,:],y_hat,learning_rate)
+
+        # check how is performing the network after each epoch
+            # estimate the training labels
+            Y_hat=self.forward(x)
+            # compute the loss
+            loss.append(MLP.loss(Y_hat,y))
+            # compute the accuracy
+            accuracy.append(MLP.accuracy(Y_hat,y))
+            
+            # if verbose is True print the results every print_every_k
+            if ((verbose == True) and (epoch%print_every_k==0)):
+                print('Epoch %d : loss = %.5e, accuracy = %.2f %%' %(epoch,loss[epoch],100*accuracy[epoch]))
+
+        self.losses=loss
+        self.accuracies=accuracy
+            
